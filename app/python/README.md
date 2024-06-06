@@ -1,8 +1,8 @@
 ## Azure Function (Python)
 
-Azure OpenAI と Azure Functions を活用し、固有表現抽出を行うサンプルである。
+Azure OpenAI と Azure Functions を活用し、固有表現抽出を行うサンプルです。
 
-テキストの注釈付け（アノテーション）を行う Web API のサンプルとして作成された。
+テキストの注釈付け（アノテーション）を行う Web API のサンプルとして作成されました。
 
 | HTTP メソッド | パス | 関数名 | 説明 |
 | :-- | :-- | :-- | :-- |

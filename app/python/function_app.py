@@ -65,4 +65,3 @@ def daily_sync_records(myTimer: func.TimerRequest) -> None:
         print(json.dumps(item, indent=True))
         # AOAI でアノテーションを付与
         # 結果を Dataverse に保存
-    print("hoge")
