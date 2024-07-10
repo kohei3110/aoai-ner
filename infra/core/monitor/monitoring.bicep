@@ -27,3 +27,4 @@ output applicationInsightsInstrumentationKey string = applicationInsights.output
 output applicationInsightsName string = applicationInsights.outputs.name
 output logAnalyticsWorkspaceId string = logAnalytics.outputs.id
 output logAnalyticsWorkspaceName string = logAnalytics.outputs.name
+output logAnalyticsCustomerId string = logAnalytics.outputs.customerId

@@ -38,30 +38,14 @@ def create_annotations(req: func.HttpRequest) -> func.HttpResponse:
     setup_logging()
     client = create_client()
     create_annotations_usecase = CreateAnnotationsFactory.inject_usecase(client)
-    return create_annotations_usecase.create(get_text_from_request(req), labels, MessageFactory.system_message, MessageFactory.assisstant_message, MessageFactory.user_message_enrich_disable)
+    response = create_annotations_usecase.create(get_text_from_request(req), labels, MessageFactory.system_message, MessageFactory.assisstant_message, MessageFactory.user_message_enrich_disable)
+    # Blob Storage に保存
+    create_annotations_usecase.save(response)
+    return func.HttpResponse(response, status_code=200)
+
 
 # This function will be triggered every day at 19:30 UTC (26:30 AM JST)
 @app.timer_trigger(schedule="0 30 19 * * *", arg_name="myTimer", run_on_startup=True,
               use_monitor=False) 
 def daily_sync_records(myTimer: func.TimerRequest) -> None:
-    # Cosmos DB に保存されているデータ（保存日時が１日以内のもの）を収集
-    from azure.cosmos import CosmosClient
-    import os
-    import json
-    URL = os.getenv("ACCOUNT_URI")
-    KEY = os.getenv("ACCOUNT_KEY")
-    DATABASE_NAME = os.getenv("DATABASE_NAME")
-    CONTAINER_NAME = os.getenv("CONTAINER_NAME")
-    client = CosmosClient(URL, KEY)
-    database = client.get_database_client(DATABASE_NAME)
-    container = database.get_container_client(CONTAINER_NAME)
-    for item in container.query_items(
-        query="SELECT * FROM c WHERE c.createdAt >= @date",
-        parameters=[
-            dict(name="@date", value="2023-01-01")
-        ],
-        enable_cross_partition_query=True
-    ):
-        print(json.dumps(item, indent=True))
-        # AOAI でアノテーションを付与
-        # 結果を Dataverse に保存
+    print('アノテーション付与処理を実行します。（モック）')
