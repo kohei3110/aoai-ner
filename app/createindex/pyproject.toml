@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "createindex"
+version = "0.1.0"
+description = ""
+authors = ["kohei3110 <kk.31108424@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pandas = "^2.2.2"
+azure-storage-blob = "^12.20.0"
+azure-identity = "^1.17.1"
+langchain-text-splitters = "^0.2.2"
+openai = "^1.35.10"
+tiktoken = "^0.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

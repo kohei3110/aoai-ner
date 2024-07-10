@@ -6,6 +6,7 @@
       "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
       "AZURE_OPENAI_API_KEY": "YOUR_API_KEY",
       "AZURE_OPENAI_ENDPOINT": "YOUR_AZURE_OPENAI_ENDPOINT",
-      "MODEL_ID": "YOUR_MODEL_ID"
+      "MODEL_ID": "YOUR_MODEL_ID",
+      "STORAGE_ACCOUNT_URL": "YOUR_STORAGE_ACCOUNT_URL"
     }
   }

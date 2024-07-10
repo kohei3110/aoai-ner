@@ -12,6 +12,7 @@ param resourceGroupName string = ''
 param functionPlanName string = ''
 param functionAppName string = ''
 param storageAccountName string = ''
+param documentStorageAccountName string = ''
 param logAnalyticsName string = ''
 param applicationInsightsName string = ''
 @allowed(['dotnet-isolated','python','java', 'node', 'powerShell'])
@@ -31,6 +32,7 @@ var resourceToken = toLower(uniqueString(subscription().id, environmentName, loc
 var appName = !empty(functionAppName) ? functionAppName : '${abbrs.webSitesFunctions}${resourceToken}'
 // Generate a unique container name that will be used for deployments.
 var deploymentStorageContainerName = 'app-package-${take(appName, 32)}-${take(resourceToken, 7)}'
+var documentContainerName = 'document-${take(appName, 32)}-${take(resourceToken, 7)}'
 // tags that should be applied to all resources.
 var tags = {
   // Tag all resources with the environment name.
@@ -63,7 +65,8 @@ module storage 'core/storage/storage-account.bicep' = {
     location: location
     tags: tags
     name: !empty(storageAccountName) ? storageAccountName : '${abbrs.storageStorageAccounts}${resourceToken}'
-    containers: [{name: deploymentStorageContainerName}]
+    documentStorageName: !empty(documentStorageAccountName) ? documentStorageAccountName : '${abbrs.storageStorageAccounts}${resourceToken}docs'
+    containers: [{name: documentContainerName}]
   }
 }
 
@@ -97,5 +100,16 @@ module azureOpenAi 'core/aoai/azure-openai.bicep' = {
     openAiSku: 'S0'
     openAiCustomSubDomainName:'${abbrs.webServerFarms}${resourceToken}'
     gpt4ModelVersion: '2024-05-13'
+  }
+}
+
+module containerApp 'core/host/containerapp.bicep' = {
+  name: 'containerapp'
+  scope: rg
+  params: {
+    location: location
+    tags: tags
+    containerAppEnvironmentName: '${abbrs.appManagedEnvironments}${resourceToken}'
+    containerAppName: '${abbrs.appContainerApps}${resourceToken}'
   }
 }

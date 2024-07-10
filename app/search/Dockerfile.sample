@@ -1,0 +1,43 @@
+FROM python:3.12.3-slim-bullseye
+
+# Prevent the creation of bytecode files (.pyc) to reduce disk space usage
+ENV PYTHONDONTWRITEBYTECODE 1
+# Disable output buffering to allow real-time display of logs
+ENV PYTHONUNBUFFERED 1
+
+ENV AZURE_OPENAI_ENDPOINT=YOUR_AOAI_ENDPOINT
+ENV AZURE_OPENAI_API_KEY=YOUR_AOAI_KEY
+ENV AI_SEARCH_SERVICE_NAME=YOUR_AI_SEARCH_SERVICE_NAME
+ENV AI_SEARCH_INDEX_NAME=index1
+ENV AI_SEARCH_API_KEY=YOUR_AI_SEARCH_API_KEY
+ENV AZURE_TENANT_ID=YOUR_TENANT_ID
+ENV AZURE_CLIENT_ID=YOUR_CLIENT_ID
+ENV AZURE_CLIENT_SECRET=YOUR_SECRET_ID
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get -y install netcat gcc \
+    && apt-get clean
+
+# Install python dependencies
+RUN pip install --upgrade pip
+RUN pip install poetry
+
+# Set work directory
+WORKDIR /usr/src/app
+
+# Copy project file
+COPY pyproject.toml .
+
+# Install dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install
+
+# Copy all the files
+COPY . .
+
+# Expose the port the app runs in
+EXPOSE 8000
+
+# Start the application
+CMD ["uvicorn", "aisearch.main:app", "--host", "0.0.0.0", "--port", "8000"]

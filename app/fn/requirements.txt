@@ -8,5 +8,6 @@ tenacity
 azure-core
 wikipedia
 flask
-ms-dataverse
 azure-cosmos
+azure-storage-blob
+azure-identity

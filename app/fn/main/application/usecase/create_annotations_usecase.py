@@ -1,7 +1,9 @@
+import datetime
 import os
 import logging
 from azure.core.exceptions import AzureError
 from azure.functions import HttpResponse
+from azure.storage.blob import BlobClient
 
 class CreateAnnotationsUseCase:
     def __init__(self, client):
@@ -24,7 +26,14 @@ class CreateAnnotationsUseCase:
                 messages=messages, 
                 temperature=0.0,
             )
-            return HttpResponse(response.choices[0].message.content, status_code=200)
+            return response.choices[0].message.content
         except AzureError as e:
             logging.error(f"An error occurred: {e}")
             return HttpResponse(None, status_code=500)
+        
+    def save(self, response):
+        # Blob Storage に保存
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        blob_client = BlobClient.from_connection_string(os.environ("STORAGE_ACCOUNT_CONNECTION_STRING"), "cog-search-demo", now_str + ".json")
+        # 日時をファイル名に含める
+        blob_client.upload_blob(response, blob_type="BlockBlob")

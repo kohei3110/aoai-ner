@@ -64,6 +64,19 @@ resource flexFuncApp 'Microsoft.Web/sites@2023-12-01' = {
           name: 'MODEL_ID'
           value: 'gpt-4o'
         }
+        // FIXME: サービスプリンシパルを作成し、output を設定する
+        {
+          name: 'AZURE_TENANT_ID'
+          value: ''
+        }
+        {
+          name: 'AZURE_CLIENT_ID'
+          value: ''
+        }
+        {
+          name: 'AZURE_CLIENT_SECRET'
+          value: ''
+        }
       ]
     }
     functionAppConfig: {
