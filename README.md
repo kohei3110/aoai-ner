@@ -88,6 +88,7 @@ param location = 'eastasia'
 例えば、`maincopy.bicepparam` を作成し、East US リージョンにデプロイする際、以下のコマンドを実行します。
 
 ```
+az login
 cd infra
 az deployment sub create --name fcthibicep1 --location eastus --template-file main.bicep --parameters maincopy.bicepparam
 ```
