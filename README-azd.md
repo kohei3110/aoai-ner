@@ -24,6 +24,13 @@
 - **Azure Container Apps**: コンテナベースのアプリケーションをホストします。
 - **Azure Container Registry**: Dockerコンテナイメージの管理を行います。
 
+リポジトリをローカル環境にクローンします。
+
+```
+git clone https://github.com/kohei3110/aoai-ner.git
+cd aoai-ner
+```
+
 ## 1. Azure リソース作成
 
 ### 1-1. パラメーターファイルのコピーと修正
