@@ -6,6 +6,8 @@
 
 プロジェクトを開始する前に、以下のツールがインストールされていることを確認してください。
 
+- [Git](https://git-scm.com/download/win) - 本リポジトリをクローンするために必要です。
+
 - [Azure Developer CLI](https://learn.microsoft.com/ja-jp/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows) - Azure リソースを管理するために必要です。
 
 - [Docker](https://docs.docker.com/engine/install/) - コンテナを展開するために必要です。
