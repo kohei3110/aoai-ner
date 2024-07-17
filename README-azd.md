@@ -70,12 +70,25 @@ param location = 'eastus'
 ```
 azd auth login
 azd init
+```
 
+環境名を聞かれるので、任意の値（`dev`など）を入力し、Enter を押します。
+
+```
 Initializing an app to run on Azure (azd init)
-? How do you want to initialize your app?
-> Use code in the current directory
+
+Enter a new environment name: dev
+```
+
+`SUCCESS: New project initiated` と表示されたら成功です。
+
+リソースを展開し、アプリケーションをデプロイします。
+
+```
 azd up
 ```
+
+**デプロイ先のサブスクリプション・リージョン**を Enter で選択します。本ハンズオンでは、リージョンを `East US` にすることを推奨します。
 
 デプロイが完了すると、以下のようなリソースが作成されます。
 

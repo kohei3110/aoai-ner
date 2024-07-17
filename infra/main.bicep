@@ -96,7 +96,7 @@ module azureOpenAi 'core/aoai/azure-openai.bicep' = {
     gpt4ModelCapacity: 1
     openAiName: 'oai-ner-${environmentName}-${location}-001'
     openAiSku: 'S0'
-    openAiCustomSubDomainName:'${abbrs.webServerFarms}${resourceToken}'
+    openAiCustomSubDomainName:'${abbrs.cognitiveServicesAccounts}${resourceToken}'
     gpt4ModelVersion: '2024-05-13'
   }
 }
