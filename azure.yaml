@@ -3,7 +3,11 @@ metadata:
     template: azd-init@1.9.4
 hooks:
   postprovision:
-    shell: sh
+    # Windows の場合は、pwsh を使用
+    shell: pwsh
     run: |
-      echo "Deploy Search App"
-      ./deploy-resources.sh
+      .\deploy-resources.ps1
+    # Mac / Linux の場合は、sh を使用
+    # shell: sh
+    # run: |
+    #   ./deploy-resources.sh
