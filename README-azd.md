@@ -16,6 +16,8 @@
 
 - [Azure Functions Core Tools](https://learn.microsoft.com/ja-jp/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-python#install-the-azure-functions-core-tools) - 関数アプリを展開するために必要です。
 
+- [Python 3.11](https://www.python.org/downloads/) - 関数アプリを展開するために必要です。
+
 以下のリソースがデプロイされます:
 
 - **Resource Group**: リソースを管理するためのコンテナ（リソースグループ）。
@@ -84,10 +86,16 @@ Enter a new environment name: dev
 
 `SUCCESS: New project initiated` と表示されたら成功です。
 
-リソースを展開し、アプリケーションをデプロイします。
+Azure リソースを展開します。
 
 ```
 azd up
+```
+
+※ Windows で実行時、エラーが出た場合は以下のコマンドにより `pwsh` に PATH を通してください。
+
+```
+dotnet tool update --global PowerShell
 ```
 
 **デプロイ先のサブスクリプション・リージョン**を Enter で選択します。本ハンズオンでは、リージョンを `East US` にすることを推奨します。
@@ -198,7 +206,7 @@ Functions:
 
 `Dockerfile.sample` を同じディレクトリに `Dockerfile` というファイル名でコピーし、以下の値を編集します。
 
-- **AZURE_OPENAI_ENDPOINT**: Azure OpenAI のエンドポイント
+- **AZURE_OPENAI_ENDPOINT**: Azure OpenAI のエンドポイント (`https://xxxxxxx.openai.azure.com/`)
 - **AZURE_OPENAI_API_KEY**: Azure OpenAI のキー
 - **AI_SEARCH_SERVICE_NAME**: AI Search のリソース名
 - **AI_SEARCH_API_KEY**: AI Search の API キー

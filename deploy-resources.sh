@@ -4,7 +4,6 @@ AZURE_RESOURCE_GROUP=`az group list --query "[?contains(name, 'rg-ner-')].{name:
 ACR_NAME=`az acr list --query "[?contains(name, 'crner')].{name:name}" -o tsv`
 ACR_REPOSITORY_NAME_SEARCH=search
 ACR_REPOSITORY_NAME_CREATEINDEX=createindex
-ACA_NAME=`az containerapp list --query "[?contains(name, 'ca-ner')].name" -o tsv`
 ACE_NAME=`az containerapp env list --query "[?contains(name, 'cae-ner')].name" -o tsv`
 FN_APP_NAME=`az functionapp list --query "[?contains(name, 'func-ner')].name" -o tsv`
 AOAI_NAME=`az cognitiveservices account list --query "[?contains(name, 'oai-ner')].name" -o tsv`
@@ -13,7 +12,7 @@ echo "========================================"
 echo "Deploy Function App (Flex Consumption)"
 echo "========================================"
 cd ./app/fn
-func azure functionapp publish ${FN_APP_NAME}
+func azure functionapp publish ${FN_APP_NAME} --python
 
 echo "========================================"
 echo "Login ACR"

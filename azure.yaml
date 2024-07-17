@@ -3,11 +3,11 @@ metadata:
     template: azd-init@1.9.4
 hooks:
   postprovision:
-    # Windows の場合は、pwsh を使用
-    shell: pwsh
-    run: |
-      .\deploy-resources.ps1
-    # Mac / Linux の場合は、sh を使用
-    # shell: sh
-    # run: |
-    #   ./deploy-resources.sh
+    windows:
+      shell: pwsh
+      run: |
+        .\deploy-resources.ps1
+    posix:
+      shell: sh
+      run: |
+        ./deploy-resources.sh
