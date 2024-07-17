@@ -1,0 +1,9 @@
+name: named-entity-recognition
+metadata:
+    template: azd-init@1.9.4
+hooks:
+  postprovision:
+    shell: sh
+    run: |
+      echo "Deploy Search App"
+      ./deploy-resources.sh

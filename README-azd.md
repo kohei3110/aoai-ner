@@ -35,7 +35,7 @@ cd aoai-ner
 
 ### 1-1. パラメーターファイルのコピーと修正
 
-`main.bicepparam` ファイルのパラメータの値を指定するように修正します。
+`infra/main.bicepparam` ファイルのパラメータの値を指定するように修正します。
 
 デプロイ前に値を指定する必要があるパラメータは以下の通りです：
 
@@ -55,7 +55,7 @@ cd aoai-ner
 
 ※ これらのリージョンは、パブリックプレビューの早期アクセス時に利用可能です。
 
-例えば、East US リージョンにデプロイする際、`main.bicepparam` を以下のように書き換えます。
+例えば、East US リージョンにデプロイする際、`infra/main.bicepparam` を以下のように書き換えます。
 
 ```
 using 'main.bicep'
@@ -69,6 +69,11 @@ param location = 'eastus'
 
 ```
 azd auth login
+azd init
+
+Initializing an app to run on Azure (azd init)
+? How do you want to initialize your app?
+> Use code in the current directory
 azd up
 ```
 

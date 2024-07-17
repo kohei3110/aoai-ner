@@ -260,6 +260,5 @@ request.http
 request.json
 local.settings.json
 .vscode
-azure.yaml
 request.rest
 .DS_Store
