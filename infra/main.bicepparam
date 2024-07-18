@@ -1,5 +1,5 @@
 using 'main.bicep'
 
 // TODO before deploying: Update the following parameters.
-param environmentName = '[A NAME FOR YOUR APP ENVIRONMENT]'
-param location = '[AZURE REGION FOR CREATING RESOURCES]'
+param environmentName = 'test'
+param location = 'eastus'

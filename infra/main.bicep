@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 @minLength(1)
-@maxLength(64)
+@maxLength(10)
 @description('Name of the the environment which is used to generate a short unique hash used in all resources.')
 param environmentName string
 @minLength(1)
@@ -29,31 +29,29 @@ var abbrs = loadJsonContent('./abbreviations.json')
 // Generate a unique token to be used in naming resources.
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 // Generate a unique function app name if one is not provided.
-var appName = !empty(functionAppName) ? functionAppName : '${abbrs.webSitesFunctions}${resourceToken}'
+var appName = !empty(functionAppName) ? functionAppName : '${abbrs.webSitesFunctions}ner-${environmentName}-${location}-001'
 // Generate a unique container name that will be used for deployments.
 var deploymentStorageContainerName = 'app-package-${take(appName, 32)}-${take(resourceToken, 7)}'
-var documentContainerName = 'document-${take(appName, 32)}-${take(resourceToken, 7)}'
 // tags that should be applied to all resources.
 var tags = {
-  // Tag all resources with the environment name.
   'azd-env-name': environmentName
 }
 
 resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   location: location
   tags: tags
-  name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
+  name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}ner-${environmentName}-${location}-001'
 }
 
 // Monitor application with Azure Monitor
-module monitoring './core/monitor/monitoring.bicep' = {
+module monitoring 'shared/monitor/monitoring.bicep' = {
   name: 'monitoring'
   scope: rg
   params: {
     location: location
     tags: tags
-    logAnalyticsName: !empty(logAnalyticsName) ? logAnalyticsName : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
-    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
+    logAnalyticsName: !empty(logAnalyticsName) ? logAnalyticsName : '${abbrs.operationalInsightsWorkspaces}ner-${environmentName}-${location}-001'
+    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}ner-${environmentName}-${location}-001'
   }
 }
 
@@ -66,7 +64,7 @@ module storage 'core/storage/storage-account.bicep' = {
     tags: tags
     name: !empty(storageAccountName) ? storageAccountName : '${abbrs.storageStorageAccounts}${resourceToken}'
     documentStorageName: !empty(documentStorageAccountName) ? documentStorageAccountName : '${abbrs.storageStorageAccounts}${resourceToken}docs'
-    containers: [{name: documentContainerName}]
+    containers: [{name: deploymentStorageContainerName}]
   }
 }
 
@@ -77,7 +75,7 @@ module flexFunction 'core/host/function.bicep' = {
   params: {
     location: location
     tags: tags
-    planName: !empty(functionPlanName) ? functionPlanName : '${abbrs.webServerFarms}${resourceToken}'
+    planName: !empty(functionPlanName) ? functionPlanName : '${abbrs.webServerFarms}ner-${environmentName}-${location}-001'
     appName: appName
     applicationInsightsName: monitoring.outputs.applicationInsightsName
     storageAccountName: storage.outputs.name
@@ -96,9 +94,9 @@ module azureOpenAi 'core/aoai/azure-openai.bicep' = {
     location: location
     tags: tags
     gpt4ModelCapacity: 1
-    openAiName: 'gpt-4o'
+    openAiName: 'oai-ner-${environmentName}-${location}-001'
     openAiSku: 'S0'
-    openAiCustomSubDomainName:'${abbrs.webServerFarms}${resourceToken}'
+    openAiCustomSubDomainName:'${abbrs.cognitiveServicesAccounts}${resourceToken}'
     gpt4ModelVersion: '2024-05-13'
   }
 }
@@ -109,7 +107,16 @@ module containerApp 'core/host/containerapp.bicep' = {
   params: {
     location: location
     tags: tags
-    containerAppEnvironmentName: '${abbrs.appManagedEnvironments}${resourceToken}'
-    containerAppName: '${abbrs.appContainerApps}${resourceToken}'
+    containerAppEnvironmentName: '${abbrs.appManagedEnvironments}ner-${environmentName}-${location}-001'
+  }
+}
+
+module containerRegistry 'shared/container/registry.bicep' = {
+  name: '${abbrs.containerRegistryRegistries}${environmentName}${location}${deployment().name}${resourceToken}001'
+  scope: resourceGroup(rg.name)
+  params: {
+    acrName: '${abbrs.containerRegistryRegistries}ner${environmentName}${location}001'
+    location: location
+    acrSku: 'Basic'
   }
 }
