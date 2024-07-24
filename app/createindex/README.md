@@ -23,7 +23,8 @@
     - `AZURE_OPENAI_ENDPOINT`: Azure OpenAI のエンドポイントURL。
 2. スクリプトを実行します。
     ```bash
-    poetry run python createindex/main.py
+    docker build -t createindex:latest .
+    docker run createindex:latest
     ```
 
 ## 注意事項
