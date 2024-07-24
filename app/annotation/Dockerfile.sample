@@ -14,6 +14,8 @@ ENV PYTHONUNBUFFERED 1
 
 ENV AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
 ENV AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+ENV MODEL_ID=gpt-4o
+ENV STORAGE_ACCOUNT_CONNECTION_STRING=${STORAGE_ACCOUNT_CONNECTION_STRING}
 ENV AI_SEARCH_SERVICE_NAME=${AI_SEARCH_SERVICE_NAME}
 ENV AI_SEARCH_INDEX_NAME=index1
 ENV AI_SEARCH_API_KEY=${AI_SEARCH_API_KEY}
@@ -30,7 +32,7 @@ RUN apt-get update \
 
 # Install python dependencies
 RUN pip install --upgrade pip
-RUN pip install poetry
+RUN pip install poetry && poetry --version
 
 # Set work directory
 WORKDIR /usr/src/app
@@ -49,4 +51,5 @@ COPY . .
 EXPOSE 8000
 
 # Start the application
-CMD ["poetry", "run", "python", "createindex/main.py"]
+# CMD ["uvicorn", "annotation.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "annotation/main.py"]

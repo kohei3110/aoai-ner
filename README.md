@@ -4,102 +4,35 @@
 
 ## 0. 環境準備
 
-### Bicep ファイルをデプロイするためのツール
+プロジェクトを開始する前に、以下のツールがインストールされていることを確認してください。
 
-まず、Bicep ファイルをデプロイするためのツールを準備します。
+- [Git](https://git-scm.com/download/win) - 本リポジトリをクローンするために必要です。
 
-以下のいずれかの方法を使用できます。**用意する環境はいずれか１つで構いません。**
+- [Azure CLI](https://learn.microsoft.com/ja-jp/cli/azure/install-azure-cli-windows?tabs=azure-cli) - Azure リソース展開時に必要です。
 
-- **Visual Studio Code - Bicep 拡張機能**: 
+- [Azure Developer CLI](https://learn.microsoft.com/ja-jp/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows) - Azure リソースを管理するために必要です。
 
-Bicep 拡張機能をインストールして、Visual Studio Code で Bicep ファイルをデプロイします。
+- [Docker](https://docs.docker.com/engine/install/) - コンテナを展開するために必要です。
 
-- **Azure CLI**: 
+以下のリソースがデプロイされます:
 
-最新バージョンの Bicep CLI がインストールされていることを確認します。以下のコマンドでアップグレードできます：
+- **Resource Group**: リソースを管理するためのコンテナ（リソースグループ）。
+- **Azure Monitor**: アプリケーションの監視とログ収集を行います。
+- **Azure Functions**: サーバーレスアプリケーションをホストします。
+- **Azure OpenAI**: OpenAIモデルのホスティングと管理を行います。
+- **Azure Container Apps**: コンテナベースのアプリケーションをホストします。
+- **Azure Container Registry**: Dockerコンテナイメージの管理を行います。
 
-```
-az bicep upgrade  
-```
-
-- **PowerShell**: 
-
-PowerShell を使用して Bicep ファイルをデプロイします。
-
-### Azure Functions Core Tools
-
-- [Azure Functions Core Tools](https://learn.microsoft.com/ja-jp/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-python#install-the-azure-functions-core-tools)をインストールします。
-
-以下のコマンドで Azure Functions Core Tools のバージョンが出力されたらインストール完了です。
+リポジトリをローカル環境にクローンします。
 
 ```
-func -v
+git clone https://github.com/kohei3110/aoai-ner.git
+cd aoai-ner
 ```
 
-### Azure CLI
+## 1. サービスプリンシパル登録・権限付与
 
-- [Windows での Azure CLI のインストール](https://learn.microsoft.com/ja-jp/cli/azure/install-azure-cli-windows?tabs=azure-cli)
-
-以下のコマンドで Azure CLI のバージョンが出力されたらインストール完了です。
-
-```
-az --version
-```
-
-### Azurite
-
-- [ローカルでの Azure Storage の開発に Azurite エミュレーターを使用する](https://learn.microsoft.com/ja-jp/azure/storage/common/storage-use-azurite?tabs=visual-studio-code%2Cblob-storage) の手順に従い、ローカル開発用のストレージをインストールします。
-
-
-## 1. Azure リソース作成
-
-### 1-1. パラメーターファイルのコピーと修正
-
-`main.bicepparam` ファイルのコピーを作成し、パラメータの値を指定するように修正します。
-
-デプロイ前に値を指定する必要があるパラメータは以下の通りです：
-
-- environmentName: 作成されるリソースに使用される一意の名前。
-- location: アセットが作成される場所。利用可能なリージョンは以下の通りです。
-
-    - `australiaeast`
-    - `eastasia`
-    - `eastus`
-    - `eastus2`
-    - `northeurope`
-    - `southcentralus`
-    - `southeastasia`
-    - `swedencentral`
-    - `uksouth`
-    - `westus2`
-
-※ これらのリージョンは、パブリックプレビューの早期アクセス時に利用可能です。
-
-以下はコピー・修正後の `main.bicepparam` のサンプルです。
-
-```
-using 'main.bicep'
-param environmentName = 'myflexconsumptionapp'
-param location = 'eastasia'
-```
-
-### 1-２. デプロイ実行
-
-例えば、`maincopy.bicepparam` を作成し、East US リージョンにデプロイする際、以下のコマンドを実行します。
-
-```
-az login
-cd infra
-az deployment sub create --name fcthibicep1 --location eastus --template-file main.bicep --parameters maincopy.bicepparam
-```
-
-デプロイが完了すると、以下のようなリソースが作成されます。
-
-![Azure Resources](./infra/images/resources.png "作成される Azure リソース一覧")
-
-## 2. アプリケーションのデプロイ
-
-### 2-1. Entra ID へのアプリケーション登録（サービスプリンシパル作成）
+### 1-1. Entra ID へのアプリケーション登録（サービスプリンシパル作成）
 
 アプリケーション（インデックス作成ジョブ）で使用する認証情報を登録するため、Entra ID のアプリケーションを登録し、サービスプリンシパルを作成します。
 
@@ -123,7 +56,7 @@ az deployment sub create --name fcthibicep1 --location eastus --template-file ma
 
 **登録**ボタンを押下し、アプリケーションを登録します。
 
-### 2-2. 作成したサービスプリンシパルにロールを割り当てる
+### 1-2. 作成したサービスプリンシパルにロールを割り当てる
 
 上記で作成したサービスプリンシパルに対し、ストレージアカウントに保存されたファイルを読み取るための権限を付与します。
 
@@ -131,7 +64,7 @@ az deployment sub create --name fcthibicep1 --location eastus --template-file ma
 
 ![ストレージアカウントへの権限付与](./infra/images/entra_4.png "ストレージアカウントへの権限付与")
 
-**ストレージ BLOB データ閲覧者** を選択し、**次へ**を押下。
+**ストレージ Blob データ共同作成者** を選択し、**次へ**を押下。
 
 ![ストレージアカウントへの権限付与](./infra/images/entra_5.png "ストレージアカウントへの権限付与")
 
@@ -146,9 +79,9 @@ az deployment sub create --name fcthibicep1 --location eastus --template-file ma
 - [Microsoft Entra アプリを登録し、サービス プリンシパルを作成する](https://learn.microsoft.com/ja-jp/entra/identity-platform/howto-create-service-principal-portal)
 - [DefaultAzureCredential では環境変数を使うと便利です（Java on Azure）](https://qiita.com/kk31108424/items/a2b2d8079f9faae49721)
 
-### 2-3. サービスプリンシパルの資格情報発行
+### 1-3. サービスプリンシパルの資格情報発行
 
-プログラムでサインインするときは、認証要求でディレクトリ (テナント) ID とアプリケーション (クライアント) ID を渡します。 証明書または認証キーも必要です。 
+プログラム内で Azure にサインインするときは、認証要求でディレクトリ (テナント) ID とアプリケーション (クライアント) ID を環境変数に保持する必要があります。証明書または認証キーも必要です。 
 
 [Microsoft Entra 管理センター](https://entra.microsoft.com/)にサインインします。
 
@@ -164,155 +97,109 @@ az deployment sub create --name fcthibicep1 --location eastus --template-file ma
 
 ![Entra 管理センター](./infra/images/entra_8.png "Entra 管理センター")
 
-メモ帳にコピーした値は、**2-4-2. 検索インデックス作成日次ジョブ用コンテナ** にて使用します。
+`app/annotation/Dockerfile.sample`をコピーし、`Dockerfile`という名前で保存します。
 
-### 2-4. ローカル環境での動作確認
+メモ帳にコピーした**アプリケーション（クライアント）ID**、**ディレクトリ（テナント）ID**、**クライアント シークレット**を、コピーした`Dockerfile`に貼り付けます。
 
-ローカル環境で動作検証をします。
+- **AZURE_TENANT_ID**: ディレクトリ(テナント)IDの値
+- **AZURE_CLIENT_ID**: アプリケーション(クライアント)IDの値
+- **AZURE_CLIENT_SECRET**: クライアント シークレットの値
 
-#### 2-4-1. アノテーション付与用関数アプリ
+同様の手順を `app/createindex/Dockerfile.sample`、`app/search/Dockerfile.sample` にも行います。
 
-`app/fn/local.settings.sample.json` ファイルを同じディレクトリに `local.settings.json` というファイル名でコピーし、以下の値を編集します。
+## 2. Azure リソース作成
 
-- **AZURE_OPENAI_API_KEY**: Azure OpenAI のキー
-- **AZURE_OPENAI_ENDPOINT**: Azure OpenAI のエンドポイント
-- **MODEL_ID**: Azure OpenAI に展開したデプロイ名
+### 2-1. パラメーターファイルのコピーと修正
 
-```
-cd app/fn
-func start
-```
+`infra/main.bicepparam` ファイルのパラメータの値を指定するように修正します。
 
-以下のように出力され、ローカル環境で関数アプリが起動する。
+デプロイ前に値を指定する必要があるパラメータは以下の通りです：
 
-```
-Functions:
+- environmentName: 作成されるリソースに使用される一意の名前。
+- location: アセットが作成される場所。利用可能なリージョンは以下の通りです。
 
-        create_annotations: [POST] http://localhost:7071/api/annotations
+    - `australiaeast`
+    - `eastasia`
+    - `eastus`
+    - `eastus2`
+    - `northeurope`
+    - `southcentralus`
+    - `southeastasia`
+    - `swedencentral`
+    - `uksouth`
+    - `westus2`
 
-        create_annotations_enrich: [POST] http://localhost:7071/api/annotations/enrich
+※ これらのリージョンは、パブリックプレビューの早期アクセス時に利用可能です。
 
-        daily_sync_records: timerTrigger
-```
-
-#### 2-4-2. 検索インデックス作成用コンテナ（日次ジョブ）
-
-`Dockerfile.sample` を同じディレクトリに `Dockerfile` というファイル名でコピーし、以下の値を編集します。
-
-- **AZURE_OPENAI_ENDPOINT**: Azure OpenAI のエンドポイント
-- **AZURE_OPENAI_API_KEY**: Azure OpenAI のキー
-- **AI_SEARCH_SERVICE_NAME**: AI Search のリソース名
-- **AI_SEARCH_API_KEY**: AI Search の API キー
-- **STORAGE_ACCOUNT_NAME**: インデックス作成対象の文書が保管されるストレージアカウント名（`docs`で終わる値）
-- **AZURE_TENANT_ID**: Entra ID テナント名（メモ帳にコピーした値）
-- **AZURE_CLIENT_ID**: Entra ID アプリケーション ID（メモ帳にコピーした値）
-- **AZURE_CLIENT_SECRET**: Entra ID アプリケーションシークレット（メモ帳にコピーした値）
-
-`Dockerfile` 作成後、`app/createindex` ディレクトリに移動し、以下のコマンドでコンテナをビルド・実行します。
+例えば、East US リージョンにデプロイする際、`infra/main.bicepparam` を以下のように書き換えます。
 
 ```
-cd ../createindex
-docker build -t createindex:0.0.1 --platform linux/x86_64 .  
-docker run createindex:0.0.1
+using 'main.bicep'
+param environmentName = 'dev'
+param location = 'eastus'
 ```
 
-以下のログが出力されれば、コンテナは正常終了しています。
+### 2-２. デプロイ実行
+
+Windows の場合は Windows Terminal から Git Bash を開き、以下のコマンドを実行します。
 
 ```
-202x-xx-xx xx:xx:xx,xxx - root - INFO - Index created and documents uploaded successfully.
+az login
+azd auth login
+azd init
 ```
 
-その他のログが出力されている場合は、コンテナは異常終了しています。データが Blob ストレージにアップロードされているか、`Dockerfile` に設定した環境変数が間違っていないか等を確認します。
-
-#### 2-4-3. 検索クエリ処理用コンテナ
-
-`Dockerfile.sample` を同じディレクトリに `Dockerfile` というファイル名でコピーし、以下の値を編集します。
-
-- **AZURE_OPENAI_ENDPOINT**: Azure OpenAI のエンドポイント
-- **AZURE_OPENAI_API_KEY**: Azure OpenAI のキー
-- **AI_SEARCH_SERVICE_NAME**: AI Search のリソース名
-- **AI_SEARCH_API_KEY**: AI Search の API キー
-- **AZURE_TENANT_ID**: Entra ID テナント名（メモ帳にコピーした値）
-- **AZURE_CLIENT_ID**: Entra ID アプリケーション ID（メモ帳にコピーした値）
-- **AZURE_CLIENT_SECRET**: Entra ID アプリケーションシークレット（メモ帳にコピーした値）
-
-`Dockerfile` 作成後、`app/search` ディレクトリに移動し、以下のコマンドでコンテナをビルド・実行します。
+環境名を聞かれるので、任意の値（`dev`など）を入力し、Enter を押します。
 
 ```
-cd ../search
-docker build -t search:0.0.1 --platform linux/x86_64 .  
-docker run -p 8000:8000 search:0.0.1
+Initializing an app to run on Azure (azd init)
+
+Enter a new environment name: dev
 ```
 
-検索クエリを実行します。ブラウザを開いて以下の URL を入力し、全文検索・ベクトル検索・ハイブリッド検索・セマンティックランク付けを試します。
+`SUCCESS: New project initiated` と表示されたら成功です。
 
-`query` パラメータに、検索キーワードを入力します。
-
-```
-http://localhost:8000/fulltext?query=xxxxxxxxx
-
-http://localhost:8000/vector?query=xxxxxxxxx
-
-http://localhost:8000/hybrid?query=xxxxxxxxx
-
-http://localhost:8000/semantic?query=xxxxxxxxx
-```
-
-### 2-5. Azure にアプリケーションをデプロイ
-
-#### 2-5-1. アノテーション付与用関数アプリ
-
-`app/fn` ディレクトリに作成した関数アプリを Azure にデプロイします。
-
-以下のコマンドで Azure に関数アプリをデプロイします。
+Azure リソースを展開します。
 
 ```
-cd ../fn
-func azure functionapp publish <APP_NAME>
+azd up
 ```
 
-関数アプリの環境変数に、それぞれ以下の値を設定します。
+※ Windows にて `Docker: "no matching manifest for windows/amd64 in the manifest list entries"` エラーが出た場合、システムトレイ内の Docker アイコンを右クリックし、Linux コンテナに切り替える必要があります（[参考](https://stackoverflow.com/questions/48066994/docker-no-matching-manifest-for-windows-amd64-in-the-manifest-list-entries)）。
 
-| 環境変数 | 値 |
-| :--- | :--- |
-| AZURE_OPENAI_API_KEY | Azure OpenAI の API キー |
-| AZURE_OPENAI_ENDPOINT | Azure OpenAI のエンドポイント |
+![Docker](./infra/images/docker.png "Linux container に切り替え")
 
-![AOAI 環境変数](./infra/images/openai_environment_variables.png "作成される Azure リソース一覧")
+**デプロイ先のサブスクリプション・リージョン**を Enter で選択します。本ハンズオンでは、リージョンを `East US` にすることを推奨します。
 
-以下のコマンドを使って、動作確認をします。
+デプロイが完了すると、以下のようなリソースが作成されます。
 
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{"text":"ここにテキストを入力"}' http://<関数アプリのURL>/api/annotations
-```
+![Azure Resources](./infra/images/resources.png "作成される Azure リソース一覧")
 
-#### 2-5-2. 検索インデックス作成用コンテナ（日次ジョブ）
+### 2-3. Azure 上のアプリケーションの動作確認
 
-`app/createindex` ディレクトリに作成したコンテナアプリ（日次ジョブ）を Azure にデプロイします。
+Azure にデプロイ済みのアプリケーションを動作確認します。
 
-以下のコマンドで Azure に `createindex` という名前のコンテナアプリ（ジョブ）をデプロイします。
+#### 2-3-1. アノテーション付与用コンテナ（日次ジョブ）
 
-日次ジョブとして、日本時間深夜0時に実行するためには、CRON式で `0 9 * * *` を指定します。
+Azure Portal から**コンテナー アプリ ジョブ**を検索します。
 
-```
-cd ../createindex
-az acr login --name <YOUR_CONTAINER_REGISTRY_NAME>
-docker tag createindex:0.0.1 <YOUR_CONTAINER_REGISTRY_NAME>.azurecr.io/createindex:0.0.1
-docker push <YOUR_CONTAINER_REGISTRY_NAME>.azurecr.io/createindex:0.0.1
+**cajannot** から始まるジョブを選択します。
 
-az containerapp job create --name "createindex" --resource-group "リソースグループ名"  --environment "Container Apps 環境名" --trigger-type "Schedule" --replica-timeout 1800 --image "<YOUR_CONTAINER_REGISTRY_NAME>.azurecr.io/createindex:0.0.1" --cpu "0.25" --memory "0.5Gi" --cron-expression "0 9 * * *"
-```
+**▷Run now** を押下し、アノテーション付与ジョブを実行します。
 
-#### 2-5-3. 検索クエリ処理用コンテナ
+![ジョブ実行](./infra/images/job_1.png "ジョブ実行")
 
-`app/search` ディレクトリに作成したコンテナアプリ（検索用 API）を Azure にデプロイします。
+#### 2-3-2. 検索インデックス作成用コンテナ（日次ジョブ）
 
-以下のコマンドで Azure にコンテナアプリをデプロイします。
+Azure Portal から**コンテナー アプリ ジョブ**を検索します。
 
-```
-cd ../search
-az containerapp up --name <Container Apps 名> --source . --ingress external
-```
+**cajindex** から始まるジョブを選択します。
+
+**▷Run now** を押下し、アノテーション付与ジョブを実行します。
+
+![ジョブ実行](./infra/images/job_2.png "ジョブ実行")
+
+### 2-4. 検索クエリ実行
 
 検索クエリを実行します。ブラウザを開いて以下の URL を入力し、全文検索・ベクトル検索・ハイブリッド検索・セマンティックランク付けを試します。
 

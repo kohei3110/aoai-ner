@@ -3,11 +3,6 @@ metadata:
     template: azd-init@1.9.4
 hooks:
   postprovision:
-    windows:
-      shell: pwsh
-      run: |
-        .\deploy-resources.ps1
-    posix:
-      shell: sh
-      run: |
-        ./deploy-resources.sh
+    shell: sh
+    run: |
+      ./deploy-resources.sh
