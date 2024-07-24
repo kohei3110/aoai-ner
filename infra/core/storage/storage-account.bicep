@@ -1,4 +1,3 @@
-param name string
 param documentStorageName string
 param location string = resourceGroup().location
 param tags object = {}
@@ -11,7 +10,12 @@ param accessTier string = 'Hot'
 param allowBlobPublicAccess bool = true
 param allowCrossTenantReplication bool = true
 param allowSharedKeyAccess bool = true
-param containers array = []
+param containers array = [
+  {
+    name: 'cog-search-demo'
+    publicAccess: 'Blob'
+  }
+]
 param defaultToOAuthAuthentication bool = false
 param deleteRetentionPolicy object = {}
 @allowed([ 'AzureDnsZone', 'Standard' ])
@@ -25,38 +29,6 @@ param networkAcls object = {
 @allowed([ 'Enabled', 'Disabled' ])
 param publicNetworkAccess string = 'Enabled'
 param sku object = { name: 'Standard_LRS' }
-
-resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
-  name: name
-  location: location
-  tags: tags
-  kind: kind
-  sku: sku
-  properties: {
-    accessTier: accessTier
-    allowBlobPublicAccess: allowBlobPublicAccess
-    allowCrossTenantReplication: allowCrossTenantReplication
-    allowSharedKeyAccess: allowSharedKeyAccess
-    defaultToOAuthAuthentication: defaultToOAuthAuthentication
-    dnsEndpointType: dnsEndpointType
-    minimumTlsVersion: minimumTlsVersion
-    networkAcls: networkAcls
-    publicNetworkAccess: publicNetworkAccess
-  }
-
-  resource blobServices 'blobServices' = if (!empty(containers)) {
-    name: 'default'
-    properties: {
-      deleteRetentionPolicy: deleteRetentionPolicy
-    }
-    resource container 'containers' = [for container in containers: {
-      name: container.name
-      properties: {
-        publicAccess: contains(container, 'publicAccess') ? container.publicAccess : 'None'
-      }
-    }]
-  }
-}
 
 resource documentStorage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: documentStorageName
@@ -84,12 +56,8 @@ resource documentStorage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
     resource container 'containers' = [for container in containers: {
       name: container.name
       properties: {
-        publicAccess: contains(container, 'publicAccess') ? container.publicAccess : 'None'
+        publicAccess: container.?publicAccess ?? 'None'
       }
     }]
   }
 }
-
-output name string = storage.name
-output primaryEndpoints object = storage.properties.primaryEndpoints
-output storageId string = storage.id

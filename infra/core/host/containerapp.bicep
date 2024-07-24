@@ -1,6 +1,8 @@
 param containerAppEnvironmentName string
 param location string = resourceGroup().location
 param tags object = {}
+param customerId string
+param sharedKey string
 
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
   name: containerAppEnvironmentName
@@ -8,7 +10,12 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2023-11-02-p
   tags: tags
   properties: {
     appLogsConfiguration: {
-      destination: 'azure-monitor'
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: customerId
+        dynamicJsonColumns: false
+        sharedKey: sharedKey
+      }
     }
   }
 }

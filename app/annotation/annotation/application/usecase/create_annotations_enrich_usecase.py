@@ -3,8 +3,9 @@ import os
 import logging
 from typing import Optional
 from azure.core.exceptions import AzureError
-from azure.functions import HttpResponse
 from tenacity import retry, stop_after_attempt, wait_random_exponential
+import wikipedia
+import logging
 
 class CreateAnnotationsEnrichUseCase:
     def __init__(self, client):
@@ -31,15 +32,12 @@ class CreateAnnotationsEnrichUseCase:
             if (response.choices[0].finish_reason == "tool_calls"):
                 response.choices[0].message.content = self.enrich_entities(response.choices[0].message.tool_calls[0].function.arguments, json.loads(response.choices[0].message.tool_calls[0].function.arguments))            
 
-            return HttpResponse(response.choices[0].message.content, status_code=200)
+            return response.choices[0].message.content
         except AzureError as e:
-            logging.error(f"An error occurred: {e}")
-            return HttpResponse(None, status_code=500)
+            logging.error(f"An error occurred: {e}")            
         
     @retry(wait=wait_random_exponential(min=1, max=10), stop=stop_after_attempt(5))
     def find_link(self, entity: str) -> Optional[str]:
-        import wikipedia
-        import logging
         # """
         # Finds a Wikipedia link for a given entity.
         # """

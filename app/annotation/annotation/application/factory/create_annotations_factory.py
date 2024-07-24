@@ -1,6 +1,5 @@
-import os
-from openai import AzureOpenAI
-from main.application.usecase.create_annotations_usecase import CreateAnnotationsUseCase
+from application.usecase.create_annotations_usecase import CreateAnnotationsUseCase
+
 
 class CreateAnnotationsFactory:    
     @staticmethod
