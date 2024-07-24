@@ -67,6 +67,7 @@ param location = 'eastus'
 以下のコマンドを実行します。
 
 ```
+az login
 azd auth login
 azd init
 ```
