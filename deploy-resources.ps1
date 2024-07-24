@@ -6,10 +6,10 @@ $ACR_REPOSITORY_NAME_SEARCH = "search"
 $ACR_REPOSITORY_NAME_CREATEINDEX = "createindex"
 $ACE_NAME = az containerapp env list --query "[?contains(name, 'cae-ner')].name" -o tsv
 $AOAI_NAME = az cognitiveservices account list --query "[?contains(name, 'oai-ner')].name" -o tsv
-$AZURE_OPENAI_ENDPOINT = az cognitiveservices account show --name $env:AOAI_NAME --resource-group $env:AZURE_RESOURCE_GROUP --query "properties.endpoints" | ConvertFrom-Json | Select-Object -ExpandProperty "OpenAI Language Model Instance API"
+$AZURE_OPENAI_ENDPOINT = az cognitiveservices account show --name $AOAI_NAME --resource-group $AZURE_RESOURCE_GROUP --query "properties.endpoints" | ConvertFrom-Json | Select-Object -ExpandProperty "OpenAI Language Model Instance API"
 $AZURE_OPENAI_ENDPOINT = $AZURE_OPENAI_ENDPOINT.Trim('"')
 $AZURE_OPENAI_ENDPOINT = $AZURE_OPENAI_ENDPOINT.TrimEnd('/')
-$AZURE_OPENAI_API_KEY = az cognitiveservices account keys list --name $env:AOAI_NAME --resource-group $env:AZURE_RESOURCE_GROUP --query "key1" -o tsv
+$AZURE_OPENAI_API_KEY = az cognitiveservices account keys list --name $AOAI_NAME --resource-group $AZURE_RESOURCE_GROUP --query "key1" -o tsv
 $STORAGE_ACCOUNT_NAME = $(az storage account list --query "[?contains(name, 'stner$($LOCATION)')].name" -o tsv)
 $STORAGE_ACCOUNT_CONNECTION_STRING = $(az storage account show-connection-string --name $STORAGE_ACCOUNT_NAME --resource-group $AZURE_RESOURCE_GROUP)
 $AI_SEARCH_SERVICE_NAME = az search service list --resource-group $AZURE_RESOURCE_GROUP --query "[?contains(name, 'srch-ner')].{name:name}" -o tsv
@@ -36,7 +36,7 @@ Write-Host "========================================"
 Write-Host "Build and Push (AI Search)"
 Write-Host "========================================"
 Set-Location ../search
-docker build -t "$($ACR_NAME).azurecr.io/$($env:ACR_REPOSITORY_NAME_SEARCH):latest" --build-arg AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT --build-arg AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY --build-arg AI_SEARCH_SERVICE_NAME=$AI_SEARCH_SERVICE_NAME --build-arg AI_SEARCH_API_KEY=$AI_SEARCH_API_KEY --platform linux/x86_64 .
+docker build -t "$($ACR_NAME).azurecr.io/$($ACR_REPOSITORY_NAME_SEARCH):latest" --build-arg AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT --build-arg AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY --build-arg AI_SEARCH_SERVICE_NAME=$AI_SEARCH_SERVICE_NAME --build-arg AI_SEARCH_API_KEY=$AI_SEARCH_API_KEY --platform linux/x86_64 .
 docker push "$($ACR_NAME).azurecr.io/$ACR_REPOSITORY_NAME_SEARCH:latest"
 
 Write-Host "========================================"
