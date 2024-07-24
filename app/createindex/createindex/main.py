@@ -80,9 +80,8 @@ async def schedule():
             df.at[i, 'contentVector'] = response.data[0].embedding
         df = await get_embeddings_and_update_df(df)
         try:
-
-            create_index_response_status = await create_index(createindex_url, api_key)
-            upload_documents_index_status = await upload_documents(base_url, api_key, df)
+            await create_index(createindex_url, api_key)
+            await upload_documents(base_url, api_key, df)
             await cleanup_downloads()
             sys.exit(0)
         except requests.exceptions.HTTPError as http_err:
