@@ -1,6 +1,6 @@
 # Azure OpenAI を活用した固有表現抽出
 
-![Architecture](./infra/images/architecture.png "サンプルアプリアーキテクチャ")
+![Architecture](./infra/images/architecture_ca.png "サンプルアプリアーキテクチャ")
 
 ## 0. 環境準備
 
