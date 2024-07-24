@@ -1,0 +1,55 @@
+FROM python:3.12.3-slim-bullseye
+
+ARG AZURE_OPENAI_ENDPOINT
+ARG AZURE_OPENAI_API_KEY
+ARG STORAGE_ACCOUNT_CONNECTION_STRING
+ARG STORAGE_ACCOUNT_NAME
+ARG AI_SEARCH_SERVICE_NAME
+ARG AI_SEARCH_API_KEY
+
+# Prevent the creation of bytecode files (.pyc) to reduce disk space usage
+ENV PYTHONDONTWRITEBYTECODE 1
+# Disable output buffering to allow real-time display of logs
+ENV PYTHONUNBUFFERED 1
+
+ENV AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+ENV AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+ENV MODEL_ID=gpt-4o
+ENV STORAGE_ACCOUNT_CONNECTION_STRING=${STORAGE_ACCOUNT_CONNECTION_STRING}
+ENV AI_SEARCH_SERVICE_NAME=${AI_SEARCH_SERVICE_NAME}
+ENV AI_SEARCH_INDEX_NAME=index1
+ENV AI_SEARCH_API_KEY=${AI_SEARCH_API_KEY}
+ENV STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}
+ENV STORAGE_CONTAINER_NAME=cog-search-demo
+ENV AZURE_TENANT_ID=YOUR_TENANT_ID
+ENV AZURE_CLIENT_ID=YOUR_CLIENT_ID
+ENV AZURE_CLIENT_SECRET=YOUR_SECRET_ID
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get -y install netcat gcc \
+    && apt-get clean
+
+# Install python dependencies
+RUN pip install --upgrade pip
+RUN pip install poetry && poetry --version
+
+# Set work directory
+WORKDIR /usr/src/app
+
+# Copy project file
+COPY pyproject.toml .
+
+# Install dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install
+
+# Copy all the files
+COPY . .
+
+# Expose the port the app runs in
+EXPOSE 8000
+
+# Start the application
+# CMD ["uvicorn", "annotation.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "annotation/main.py"]
