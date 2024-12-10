@@ -15,7 +15,7 @@ langchain = "^0.2.6"
 pandas = "^2.2.2"
 azure-search-documents = "^11.4.0"
 azure-storage-blob = "^12.20.0"
-azure-identity = "^1.17.1"
+azure-identity = "^1.19.0"
 
 [build-system]
 requires = ["poetry-core"]
