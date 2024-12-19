@@ -10,7 +10,7 @@ python = "^3.12"
 pandas = "^2.2.2"
 azure-storage-blob = "^12.20.0"
 azure-identity = "^1.17.1"
-langchain-text-splitters = "^0.2.2"
+langchain-text-splitters = "^0.3.4"
 openai = "^1.35.10"
 tiktoken = "^0.7.0"
 
